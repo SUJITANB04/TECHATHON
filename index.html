@@ -1,0 +1,89 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Learning Support Tool</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f7fb; }
+    .card { max-width: 560px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+    label { display:block; margin-top:12px; font-weight:600; }
+    select, input { width:100%; padding:8px; margin-top:6px; border-radius:6px; border:1px solid #ddd; }
+    button { margin-top: 16px; padding:10px 14px; border:none; background: #2b6df6; color:white; border-radius:8px; cursor:pointer; }
+    #result { margin-top:18px; font-weight:700; color:#333; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>AI Learning Support Tool</h2>
+
+    <label for="name">Child name (optional)</label>
+    <input id="name" placeholder="Vinod">
+
+    <label for="age">Age</label>
+    <input id="age" type="number" value="8">
+
+    <label for="condition">Condition</label>
+    <select id="condition">
+      <option value="dyslexia">Dyslexia</option>
+      <option value="dysgraphia">Dysgraphia</option>
+      <option value="dyscalculia">Dyscalculia</option>
+      <option value="apd">Auditory Processing Disorder</option>
+      <option value="lpd">Language Processing Disorder</option>
+      <option value="nvld">Nonverbal Learning Disorder</option>
+      <option value="visual_processing">Visual Processing Disorder</option>
+    </select>
+
+    <label for="language">Language</label>
+    <select id="language">
+      <option>English</option>
+      <option>Tamil</option>
+      <option>Hindi</option>
+    </select>
+
+    <label for="preference">Preference</label>
+    <select id="preference">
+      <option>stories</option>
+      <option>games</option>
+      <option>exercises</option>
+    </select>
+
+    <button onclick="analyze()">Analyze & Save</button>
+
+    <div id="result"></div>
+  </div>
+
+<script>
+async function analyze() {
+  const name = document.getElementById('name').value;
+  const age = parseInt(document.getElementById('age').value || '8');
+  const condition = document.getElementById('condition').value;
+  const language = document.getElementById('language').value;
+  const preference = document.getElementById('preference').value;
+
+  const payload = { age, condition, language, preference };
+  try {
+    // Call analyze
+    const res = await fetch('http://127.0.0.1:8000/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    const msg = `Recommendation (${data.language}, ${data.preference}): ${data.recommendation}`;
+    document.getElementById('result').innerText = msg;
+
+    // Save to DB (optional)
+    const savePayload = { name, age, condition, recommendation: data.recommendation };
+    await fetch('http://127.0.0.1:8000/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(savePayload)
+    });
+  } catch (err) {
+    document.getElementById('result').innerText = 'Error: ' + err.message;
+  }
+}
+</script>
+</body>
+</html>
