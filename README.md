@@ -1,5 +1,4 @@
 # AI Learning Support Tool (Prototype)
-
 **Purpose:** Prototype web tool to help teachers & parents identify learning difficulties and generate personalized recommendations (stories, games, exercises).
 
 **Highlights**
@@ -11,8 +10,7 @@
 ---
 
 ## Architecture (high-level)
-
-```mermaid
+mermaid
 flowchart TD
   Parent/Teacher-->UI(Frontend(HTML/JS))
   UI-->API(Backend)
