@@ -1,89 +1,203 @@
-<!-- frontend/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>AI Learning Support Tool</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f7fb; }
-    .card { max-width: 560px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f7fb; color: #333; }
+    header { background: #2b6df6; color: white; padding: 16px; text-align: center; font-size: 22px; font-weight: bold; }
+    .container { max-width: 1000px; margin: 20px auto; padding: 20px; }
+
+    .card {
+      background: white; padding: 20px; border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08); margin-bottom: 24px;
+    }
+    h2 { margin-top: 0; }
+
     label { display:block; margin-top:12px; font-weight:600; }
-    select, input { width:100%; padding:8px; margin-top:6px; border-radius:6px; border:1px solid #ddd; }
-    button { margin-top: 16px; padding:10px 14px; border:none; background: #2b6df6; color:white; border-radius:8px; cursor:pointer; }
-    #result { margin-top:18px; font-weight:700; color:#333; }
+    select, input {
+      width:100%; padding:8px; margin-top:6px;
+      border-radius:6px; border:1px solid #ddd;
+    }
+    button {
+      margin-top: 16px; padding:12px 16px; border:none;
+      background: #2b6df6; color:white; font-size: 16px;
+      border-radius:8px; cursor:pointer;
+    }
+    button:hover { background: #1a4fd1; }
+
+    #recommendation-card {
+      margin-top:20px; padding:16px; background:#eef3ff;
+      border-left: 6px solid #2b6df6; border-radius: 8px;
+    }
+
+    .report-section { margin-top: 20px; }
+    canvas { margin-top: 16px; }
+
+    /* Content cards (stories/games/exercises) */
+    .content-section { margin-top: 20px; }
+    .content-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+    .content-card {
+      flex: 1 1 250px; background:#fff; border-radius:12px;
+      padding:16px; box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    }
+    .content-card h3 { margin: 0 0 10px; }
+    .content-card p { font-size: 14px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>AI Learning Support Tool</h2>
+  <header>AI Learning Support Tool</header>
 
-    <label for="name">Child name (optional)</label>
-    <input id="name" placeholder="Vinod">
+  <div class="container">
 
-    <label for="age">Age</label>
-    <input id="age" type="number" value="8">
+    <!-- Profile Card -->
+    <div class="card">
+      <h2>Child Profile</h2>
+      <label for="name">Name</label>
+      <input id="name" placeholder="Child name">
 
-    <label for="condition">Condition</label>
-    <select id="condition">
-      <option value="dyslexia">Dyslexia</option>
-      <option value="dysgraphia">Dysgraphia</option>
-      <option value="dyscalculia">Dyscalculia</option>
-      <option value="apd">Auditory Processing Disorder</option>
-      <option value="lpd">Language Processing Disorder</option>
-      <option value="nvld">Nonverbal Learning Disorder</option>
-      <option value="visual_processing">Visual Processing Disorder</option>
-    </select>
+      <label for="age">Age</label>
+      <input id="age" type="number" value="8">
 
-    <label for="language">Language</label>
-    <select id="language">
-      <option>English</option>
-      <option>Tamil</option>
-      <option>Hindi</option>
-    </select>
+      <label for="condition">Condition</label>
+      <select id="condition">
+        <option value="dyslexia">Dyslexia</option>
+        <option value="dysgraphia">Dysgraphia</option>
+        <option value="dyscalculia">Dyscalculia</option>
+        <option value="apd">Auditory Processing Disorder</option>
+        <option value="lpd">Language Processing Disorder</option>
+        <option value="nvld">Nonverbal Learning Disorder</option>
+        <option value="visual_processing">Visual Processing Disorder</option>
+      </select>
 
-    <label for="preference">Preference</label>
-    <select id="preference">
-      <option>stories</option>
-      <option>games</option>
-      <option>exercises</option>
-    </select>
+      <label for="language">Preferred Language</label>
+      <select id="language">
+        <option>English</option>
+        <option>Tamil</option>
+        <option>Hindi</option>
+      </select>
 
-    <button onclick="analyze()">Analyze & Save</button>
+      <label for="preference">Learning Preference</label>
+      <select id="preference">
+        <option>stories</option>
+        <option>games</option>
+        <option>exercises</option>
+      </select>
 
-    <div id="result"></div>
+      <button onclick="analyze()">Generate Recommendation</button>
+      <div id="recommendation-card"></div>
+    </div>
+
+    <!-- Reports Card -->
+    <div class="card report-section">
+      <h2>Progress Reports</h2>
+      <p>Track how the child is improving over time.</p>
+      <canvas id="progressChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- Content Card Section -->
+    <div class="card content-section">
+      <h2>Personalized Content</h2>
+      <p>Here are some suggested learning aids:</p>
+      <div class="content-grid" id="contentGrid"></div>
+    </div>
+
   </div>
 
-<script>
-async function analyze() {
-  const name = document.getElementById('name').value;
-  const age = parseInt(document.getElementById('age').value || '8');
-  const condition = document.getElementById('condition').value;
-  const language = document.getElementById('language').value;
-  const preference = document.getElementById('preference').value;
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+  async function analyze() {
+    const name = document.getElementById('name').value;
+    const age = parseInt(document.getElementById('age').value || '8');
+    const condition = document.getElementById('condition').value;
+    const language = document.getElementById('language').value;
+    const preference = document.getElementById('preference').value;
 
-  const payload = { age, condition, language, preference };
-  try {
-    // Call analyze
-    const res = await fetch('http://127.0.0.1:8000/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    const msg = `Recommendation (${data.language}, ${data.preference}): ${data.recommendation}`;
-    document.getElementById('result').innerText = msg;
+    const payload = { age, condition, language, preference };
+    try {
+      // Call backend
+      const res = await fetch('http://127.0.0.1:8000/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      const msg = `<strong>Recommendation:</strong> ${data.recommendation}<br>
+                   <em>(${data.language}, ${data.preference})</em>`;
+      document.getElementById('recommendation-card').innerHTML = msg;
 
-    // Save to DB (optional)
-    const savePayload = { name, age, condition, recommendation: data.recommendation };
-    await fetch('http://127.0.0.1:8000/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(savePayload)
-    });
-  } catch (err) {
-    document.getElementById('result').innerText = 'Error: ' + err.message;
+      // Save to DB
+      const savePayload = { name, age, condition, recommendation: data.recommendation };
+      await fetch('http://127.0.0.1:8000/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(savePayload)
+      });
+
+      // Update chart with dummy progress data
+      updateChart();
+
+      // Generate dummy personalized content
+      showContent(preference);
+
+    } catch (err) {
+      document.getElementById('recommendation-card').innerText = 'Error: ' + err.message;
+    }
   }
-}
-</script>
+
+  function updateChart() {
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+          label: 'Progress Score',
+          data: [40, 55, 65, 80], // placeholder data
+          borderColor: '#2b6df6',
+          backgroundColor: 'rgba(43,109,246,0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true, max: 100 }
+        }
+      }
+    });
+  }
+
+  function showContent(type) {
+    const contentGrid = document.getElementById('contentGrid');
+    contentGrid.innerHTML = ""; // clear previous
+
+    let items = [];
+    if (type === "stories") {
+      items = [
+        { title: "The Brave Reader", desc: "A short story with phonics emphasis." },
+        { title: "Colorful Letters", desc: "Story with big fonts and visuals." }
+      ];
+    } else if (type === "games") {
+      items = [
+        { title: "Word Match", desc: "Match words with pictures to learn spelling." },
+        { title: "Math Puzzle", desc: "Simple interactive puzzle to practice numbers." }
+      ];
+    } else {
+      items = [
+        { title: "Writing Practice", desc: "Trace letters and words for better handwriting." },
+        { title: "Memory Drill", desc: "Exercise to recall visual patterns and numbers." }
+      ];
+    }
+
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = "content-card";
+      div.innerHTML = `<h3>${item.title}</h3><p>${item.desc}</p>`;
+      contentGrid.appendChild(div);
+    });
+  }
+  </script>
 </body>
 </html>
