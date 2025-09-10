@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>AI Learning Support Tool</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; background: #f4f7fb; color: #333; }
@@ -31,9 +31,7 @@
       border-left: 6px solid #2b6df6; border-radius: 8px;
     }
 
-    .report-section {
-      margin-top: 20px;
-    }
+    .report-section { margin-top: 20px; }
 
     canvas { margin-top: 16px; }
   </style>
@@ -92,64 +90,78 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-  async function analyze() {
-    const name = document.getElementById('name').value;
-    const age = parseInt(document.getElementById('age').value || '8');
-    const condition = document.getElementById('condition').value;
-    const language = document.getElementById('language').value;
-    const preference = document.getElementById('preference').value;
+    function analyze() {
+      const name = document.getElementById('name').value || "the child";
+      const age = parseInt(document.getElementById('age').value || '8');
+      const condition = document.getElementById('condition').value;
+      const language = document.getElementById('language').value;
+      const preference = document.getElementById('preference').value;
 
-    const payload = { age, condition, language, preference };
-    try {
-      // Call backend
-      const res = await fetch('http://127.0.0.1:8000/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      const msg = `<strong>Recommendation:</strong> ${data.recommendation}<br>
-                   <em>(${data.language}, ${data.preference})</em>`;
-      document.getElementById('recommendation-card').innerHTML = msg;
+      let recommendation = "";
 
-      // Save to DB
-      const savePayload = { name, age, condition, recommendation: data.recommendation };
-      await fetch('http://127.0.0.1:8000/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(savePayload)
-      });
-
-      // Update chart with dummy progress data
-      updateChart();
-    } catch (err) {
-      document.getElementById('recommendation-card').innerText = 'Error: ' + err.message;
-    }
-  }
-
-  function updateChart() {
-    const ctx = document.getElementById('progressChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-        datasets: [{
-          label: 'Progress Score',
-          data: [40, 55, 65, 80], // placeholder data
-          borderColor: '#2b6df6',
-          backgroundColor: 'rgba(43,109,246,0.2)',
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true, max: 100 }
-        }
+      // Frontend story/game/exercise generation
+      if (preference === "stories") {
+        const stories = {
+          dyslexia: `Once upon a time, ${name}, a ${age}-year-old hero, 
+            discovered that letters could be friends instead of enemies. 
+            With colorful flashcards and patient guidance, ${name} turned reading into an adventure.`,
+          dysgraphia: `${name} loved to draw magical castles. 
+            Even though writing was hard, the castle walls whispered letters that helped ${name} 
+            practice one by one until words became part of the artwork.`,
+          dyscalculia: `In the land of Numbers, ${name} the explorer found that numbers 
+            could dance and sing. Counting stars and sharing candies made math feel like a game.`,
+          apd: `${name} lived in a world full of sounds. 
+            To listen better, the animals spoke slowly and clearly. 
+            With songs and rhythms, ${name} learned to enjoy listening carefully.`,
+          lpd: `Once upon a time, ${name} built a talking robot. 
+            The robot loved stories with simple words. 
+            Together, they practiced sentences until conversations became fun.`,
+          nvld: `${name} was a puzzle master. 
+            Shapes and patterns became magical keys to understanding stories, 
+            and every solved puzzle gave ${name} a new adventure.`,
+          visual_processing: `In the Color Kingdom, ${name} wore special glasses that made 
+            pictures brighter. With these glasses, learning through stories with big images 
+            became exciting and clear.`
+        };
+        recommendation = stories[condition] || `A fun story adventure for ${name}.`;
+      } else if (preference === "games") {
+        recommendation = `${name} can try fun memory games and puzzles tailored for ${condition}.`;
+      } else {
+        recommendation = `${name} should practice guided exercises step by step with visuals and repetition.`;
       }
-    });
-  }
+
+      // Display recommendation
+      document.getElementById('recommendation-card').innerHTML = 
+        `<strong>Recommendation:</strong> ${recommendation}<br>
+         <em>(${language}, ${preference})</em>`;
+
+      // Update chart with dummy progress
+      updateChart();
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+          datasets: [{
+            label: 'Progress Score',
+            data: [40, 55, 65, 80],
+            borderColor: '#2b6df6',
+            backgroundColor: 'rgba(43,109,246,0.2)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, max: 100 }
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>
