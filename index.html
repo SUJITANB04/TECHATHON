@@ -31,18 +31,11 @@
       border-left: 6px solid #2b6df6; border-radius: 8px;
     }
 
-    .report-section { margin-top: 20px; }
-    canvas { margin-top: 16px; }
-
-    /* Content cards (stories/games/exercises) */
-    .content-section { margin-top: 20px; }
-    .content-grid { display: flex; gap: 16px; flex-wrap: wrap; }
-    .content-card {
-      flex: 1 1 250px; background:#fff; border-radius:12px;
-      padding:16px; box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    .report-section {
+      margin-top: 20px;
     }
-    .content-card h3 { margin: 0 0 10px; }
-    .content-card p { font-size: 14px; }
+
+    canvas { margin-top: 16px; }
   </style>
 </head>
 <body>
@@ -95,13 +88,6 @@
       <canvas id="progressChart" width="400" height="200"></canvas>
     </div>
 
-    <!-- Content Card Section -->
-    <div class="card content-section">
-      <h2>Personalized Content</h2>
-      <p>Here are some suggested learning aids:</p>
-      <div class="content-grid" id="contentGrid"></div>
-    </div>
-
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -136,10 +122,6 @@
 
       // Update chart with dummy progress data
       updateChart();
-
-      // Generate dummy personalized content
-      showContent(preference);
-
     } catch (err) {
       document.getElementById('recommendation-card').innerText = 'Error: ' + err.message;
     }
@@ -166,36 +148,6 @@
           y: { beginAtZero: true, max: 100 }
         }
       }
-    });
-  }
-
-  function showContent(type) {
-    const contentGrid = document.getElementById('contentGrid');
-    contentGrid.innerHTML = ""; // clear previous
-
-    let items = [];
-    if (type === "stories") {
-      items = [
-        { title: "The Brave Reader", desc: "A short story with phonics emphasis." },
-        { title: "Colorful Letters", desc: "Story with big fonts and visuals." }
-      ];
-    } else if (type === "games") {
-      items = [
-        { title: "Word Match", desc: "Match words with pictures to learn spelling." },
-        { title: "Math Puzzle", desc: "Simple interactive puzzle to practice numbers." }
-      ];
-    } else {
-      items = [
-        { title: "Writing Practice", desc: "Trace letters and words for better handwriting." },
-        { title: "Memory Drill", desc: "Exercise to recall visual patterns and numbers." }
-      ];
-    }
-
-    items.forEach(item => {
-      const div = document.createElement('div');
-      div.className = "content-card";
-      div.innerHTML = `<h3>${item.title}</h3><p>${item.desc}</p>`;
-      contentGrid.appendChild(div);
     });
   }
   </script>
