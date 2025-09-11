@@ -12,6 +12,6 @@
 ## Architecture (high-level)
 mermaid
 flowchart TD
-  Parent/Teacher-->UI(Frontend(HTML/JS))
-  UI-->API(Backend)
-  API-->Database
+  Parent/Teacher-UI(Frontend(HTML/JS))
+  UI-API(Backend)
+  API-Database
